@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'attendance',
     'subjects',
+    'timetable',
 ]
 
 REST_FRAMEWORK = {
