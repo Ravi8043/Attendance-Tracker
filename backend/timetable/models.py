@@ -48,5 +48,5 @@ class Timetable(models.Model):
         ordering = ["day_of_week"]
 
     def __str__(self):
-        return f"{self.subject.name} - {self.get_day_of_week_display()}"
+        return f"{self.subject} - {self.get_day_of_week_display()}"
 

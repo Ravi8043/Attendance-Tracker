@@ -26,7 +26,7 @@ class MarkAttendanceView(APIView):
 
         subject = Subject.objects.get(
             id=subject_id,
-            user=request.user
+            owner=request.user #here changed user to owner as i have the field name as owner
         )
 
         attendance, _ = Attendance.objects.update_or_create(
@@ -48,7 +48,7 @@ class SubjectAttendanceListView(APIView):
     def get(self, request, subject_id):
         subject = Subject.objects.get(
             id=subject_id,
-            user=request.user
+            owner=request.user
         )
 
         records = Attendance.objects.filter(subject=subject)
@@ -68,7 +68,7 @@ class SubjectAttendanceStatsView(APIView):
     def get(self, request, subject_id):
         subject = Subject.objects.get(
             id=subject_id,
-            user=request.user
+            owner=request.user
         )
 
         records = Attendance.objects.filter(subject=subject)
@@ -81,7 +81,7 @@ class OverallAttendanceStatsView(APIView):
 
     def get(self, request):
         records = Attendance.objects.filter(
-            subject__user=request.user
+            subject__owner=request.user #changed to owner from user
         )
 
         stats = calculate_stats(records)

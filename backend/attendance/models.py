@@ -34,5 +34,6 @@ class Attendance(models.Model):
         ordering = ["-date"]
 
     def __str__(self):
-        return f"{self.subject.name} | {self.date} | {self.status}"
+        return f"{self.subject} | {self.date} | {self.status}"
+
 
