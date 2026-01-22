@@ -1,30 +1,28 @@
 from rest_framework import serializers
-from .models import CustomUser
-from django.contrib.auth import authenticate
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+
+User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=6)
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required=True)
 
     class Meta:
-        model = CustomUser
-        fields = ('username', 'password', 'id_card_number')
+        model = User
+        fields = ('username', 'password', 'password2', 'id_card_number')
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Passwords do not match"})
+        return attrs
 
     def create(self, validated_data):
-        user = CustomUser.objects.create_user(
+        validated_data.pop('password2')
+        user = User.objects.create(
             username=validated_data['username'],
-            password=validated_data['password'],
             id_card_number=validated_data['id_card_number']
         )
+        user.set_password(validated_data['password'])
+        user.save()
         return user
-
-
-class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
-
-    def validate(self, data):
-        user = authenticate(username=data['username'], password=data['password'])
-        if not user:
-            raise serializers.ValidationError("Invalid credentials")
-        data['user'] = user
-        return data
