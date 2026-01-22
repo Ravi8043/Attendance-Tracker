@@ -8,9 +8,7 @@ from .serializers import RegisterSerializer
 
 User = get_user_model()
 
-# ----------------------
-# Register
-# ----------------------
+#Registration View
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [AllowAny]
@@ -21,10 +19,10 @@ class RegisterView(generics.CreateAPIView):
 # ----------------------
 # You can use the default TokenObtainPairView from SimpleJWT:
 # /api/v1/accounts/token/
-
+# /api/v1/accounts/token/refresh/
+#you can login by sending a POST request to the above endpoint with username and password
 # ----------------------
-# Logout
-# ----------------------
+# Logout View
 class LogoutView(generics.GenericAPIView):
     permission_classes = [AllowAny]
 
