@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'attendance',
     'subjects',
     'timetable',
+    'accounts',
 ]
 
 REST_FRAMEWORK = {
@@ -53,6 +54,7 @@ REST_FRAMEWORK = {
     ],
 }
 
+AUTH_USER_MODEL = 'accounts.CustomUser'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
