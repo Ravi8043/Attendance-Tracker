@@ -43,6 +43,9 @@ class BulkAddTimetableView(APIView):
             status=status.HTTP_200_OK
         )
 
+#If a DRF view defines only post(), opening its URL in the browser sends a GET request, 
+# which results in the Browsable API form instead of JSON(like -- media type, content). 
+# This is expected behavior and not an error.
 class AddTimetableView(APIView):
     permission_classes = [IsAuthenticated]
 
