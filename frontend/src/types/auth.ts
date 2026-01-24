@@ -1,5 +1,5 @@
 export interface LoginPayLoad {
-    id_card_number: string;
+    username: string;
     password: string;
 }
 

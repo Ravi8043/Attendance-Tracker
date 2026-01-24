@@ -12,6 +12,7 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # Return subjects only for the logged-in user
+        print("user ", self.request.user)
         return Subject.objects.filter(owner=self.request.user)
 
     def perform_create(self, serializer):
