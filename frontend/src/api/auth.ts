@@ -2,6 +2,7 @@ import api from "./axios";
 import type { LoginPayLoad, RegisterPayLoad, AuthTokens } from "../types/auth";
 
 // login API
+// sends username and password, receives access and refresh tokens
 export const login = async (data: LoginPayLoad): Promise<AuthTokens> => {
   const response = await api.post<AuthTokens>("/api/v1/accounts/token/", data);
   return response.data;
