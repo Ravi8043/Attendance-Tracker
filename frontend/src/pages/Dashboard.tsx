@@ -29,21 +29,26 @@ const Dashboard = () => {
       console.error(err);
     }
   };
-
+//works only for input fields as mentioned in type
+//data sent to the backend
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData((prev) => ({
+        ...prev,
+        [e.target.name]: e.target.value,
+    }));
   };
-
+//api call to add subject
   const handleAddSubject = async () => {
     if (!formData.subject_name || !formData.subject_code) return;
 
     try {
       setLoading(true);
       await api.post("/api/v1/subjects/", formData);
-      setFormData({ subject_name: "", subject_code: "" });
+      setFormData((prev) => ({
+        ...prev,
+        subject_name: "",
+        subject_code: "",
+      }));
       setShowForm(false);
       fetchSubjects();
     } catch (err) {
@@ -60,6 +65,8 @@ const Dashboard = () => {
         <h1 className="text-2xl font-bold">Dashboard</h1>
 
         <button
+        //if clicked, show form to add subject
+        //if clicked again, hide the form
           onClick={() => setShowForm(!showForm)}
           className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-md transition"
         >

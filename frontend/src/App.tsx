@@ -3,6 +3,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Subject from './pages/Subject';
 
 function App() {
   return (
@@ -20,6 +21,15 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route 
+          path='/subjects/:id'
+          element={
+            <ProtectedRoute>
+              <Subject />
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
     </BrowserRouter>
     </div>
