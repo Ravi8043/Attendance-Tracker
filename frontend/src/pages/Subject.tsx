@@ -53,21 +53,20 @@ const Subject = () => {
       return;
     }
 
-    // 1️⃣ NO RECORD → PRESENT
-    // 2️⃣ PRESENT → ABSENT
+    
     await api.post("/api/v1/attendance/mark/", {
       subject: id,
       date,
       status,
     });
-
+    //updating the local state
     setAttendance(prev => {
       if (existing) {
         return prev.map(a =>
           a.date === date ? { ...a, status } : a
         );
       }
-
+      //new record
       return [
         ...prev,
         {
@@ -91,12 +90,12 @@ const Subject = () => {
   return (
     <div className="p-6 space-y-6">
       {/* Tabs */}
-      <div className="flex gap-6 border-b border-neutral-800">
+      <div className="flex justify-between items-center border-b border-neutral-800">
         {["dashboard", "calendar"].map(tab => (
           <button
             key={tab}
             onClick={() => setView(tab as SubjectView)}
-            className={`pb-3 text-sm font-medium transition ${
+            className={`pb-3 text-lg font-bold transition ${
               view === tab
                 ? "text-white border-b-2 border-indigo-500"
                 : "text-neutral-400 hover:text-white"

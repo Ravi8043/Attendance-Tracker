@@ -28,7 +28,7 @@ class MarkAttendanceView(APIView):
             id=subject_id,
             owner=request.user #here changed user to owner as i have the field name as owner
         )
-
+        #this lets me to create or update attendance record on that date for that subject
         attendance, _ = Attendance.objects.update_or_create(
             subject=subject,
             date=date,
@@ -37,6 +37,7 @@ class MarkAttendanceView(APIView):
 
         serializer = AttendanceSerializer(attendance)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    #this is to delete attendance record for a subject on a specific date in calender
     def delete(self, request):
         subject_id = request.data.get("subject")
         date = request.data.get("date")
