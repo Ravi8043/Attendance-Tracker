@@ -37,6 +37,23 @@ class MarkAttendanceView(APIView):
 
         serializer = AttendanceSerializer(attendance)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    def delete(self, request):
+        subject_id = request.data.get("subject")
+        date = request.data.get("date")
+
+        if not all([subject_id, date]):
+            return Response(
+                {"detail": "subject and date are required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        Attendance.objects.filter(
+            subject__id=subject_id,
+            subject__owner=request.user,
+            date=date,
+        ).delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
 #this is to get attendance records for a specific subject
 #in frontend think like click a subject -> see full attendance history
@@ -57,6 +74,7 @@ class SubjectAttendanceListView(APIView):
         serializer = AttendanceSerializer(records, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
 
 
 #Stats (present, absent, percentage → summary) for a specific subject

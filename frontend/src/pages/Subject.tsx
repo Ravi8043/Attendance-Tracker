@@ -38,16 +38,23 @@ const Subject = () => {
   const existing = attendance.find(a => a.date === date);
 
   try {
+    // 3️⃣ ABSENT → NO CLASS (delete)
     if (status === null && existing) {
-      // Delete on backend
-      await api.delete(`/api/v1/attendance/${existing.id}/`);
+      await api.delete("/api/v1/attendance/mark/", {
+        data: {
+          subject: id,
+          date,
+        },
+      });
 
-      // Remove from frontend state
-      setAttendance(prev => prev.filter(a => a.id !== existing.id));
+      setAttendance(prev =>
+        prev.filter(a => a.date !== date)
+      );
       return;
     }
 
-    // Add or update
+    // 1️⃣ NO RECORD → PRESENT
+    // 2️⃣ PRESENT → ABSENT
     await api.post("/api/v1/attendance/mark/", {
       subject: id,
       date,
@@ -56,7 +63,6 @@ const Subject = () => {
 
     setAttendance(prev => {
       if (existing) {
-        // update existing attendance
         return prev.map(a =>
           a.date === date ? { ...a, status } : a
         );
@@ -64,7 +70,11 @@ const Subject = () => {
 
       return [
         ...prev,
-        { id: Date.now(), date, status }, // always a valid AttendanceStatus
+        {
+          id: Date.now(), // temp id
+          date,
+          status,
+        },
       ];
     });
   } catch (err) {
@@ -82,27 +92,19 @@ const Subject = () => {
     <div className="p-6 space-y-6">
       {/* Tabs */}
       <div className="flex gap-6 border-b border-neutral-800">
-        <button
-          onClick={() => setView("dashboard")}
-          className={`pb-3 text-sm font-medium transition ${
-            view === "dashboard"
-              ? "text-white border-b-2 border-indigo-500"
-              : "text-neutral-400 hover:text-white"
-          }`}
-        >
-          Dashboard
-        </button>
-
-        <button
-          onClick={() => setView("calendar")}
-          className={`pb-3 text-sm font-medium transition ${
-            view === "calendar"
-              ? "text-white border-b-2 border-indigo-500"
-              : "text-neutral-400 hover:text-white"
-          }`}
-        >
-          Calendar
-        </button>
+        {["dashboard", "calendar"].map(tab => (
+          <button
+            key={tab}
+            onClick={() => setView(tab as SubjectView)}
+            className={`pb-3 text-sm font-medium transition ${
+              view === tab
+                ? "text-white border-b-2 border-indigo-500"
+                : "text-neutral-400 hover:text-white"
+            }`}
+          >
+            {tab[0].toUpperCase() + tab.slice(1)}
+          </button>
+        ))}
       </div>
 
       {view === "dashboard" && (
