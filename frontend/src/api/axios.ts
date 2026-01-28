@@ -1,28 +1,39 @@
 // src/api/axios.ts
 import axios from "axios";
+import type { InternalAxiosRequestConfig, AxiosRequestHeaders } from "axios";
 
-const BASE_URL = "http://127.0.0.1:8000/"; // replace with your Django backend
+const BASE_URL = "http://127.0.0.1:8000/";
 
-// create axios instance
+// Public endpoints that do NOT require JWT
+const PUBLIC_ENDPOINTS = ["/api/v1/accounts/register/", "/api/v1/accounts/login/"];
+
 const api = axios.create({
-  baseURL: BASE_URL,  
+  baseURL: BASE_URL,
   headers: {
-    "Content-Type": "application/json", //tells backend that its JSON data
+    "Content-Type": "application/json",
   },
 });
 
-// request interceptor to attach JWT
+// Attach JWT only for non-public endpoints
 api.interceptors.request.use(
-  (config) => {
-    //local storage only stores strings, so we need to parse it back to object
+  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+    const url = config.url ?? "";
+
+    // Skip token for public endpoints
+    if (PUBLIC_ENDPOINTS.some(ep => url.includes(ep))) {
+      return config;
+    }
+
+    // Ensure headers exist and cast to AxiosRequestHeaders
+    config.headers = config.headers ?? {} as AxiosRequestHeaders;
+
+    // Attach token safely
     const tokens = localStorage.getItem("tokens");
     if (tokens) {
-      //convert string back to object
       const access = JSON.parse(tokens).access;
-      if (config.headers) {
-        config.headers["Authorization"] = `Bearer ${access}`;
-      }
+      config.headers["Authorization"] = `Bearer ${access}`;
     }
+
     return config;
   },
   (error) => Promise.reject(error)

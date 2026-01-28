@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import SubjectCard from "../components/SubjectCard";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 type Subject = {
   id: number;
@@ -8,110 +10,106 @@ type Subject = {
   subject_code: string;
 };
 
+type OverAllStats = {
+  present: number;
+  absent: number;
+  total: number;
+  percentage: number;
+};
+
 const Dashboard = () => {
-    const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
-    subject_name: "",
-    subject_code: "",
-  });
-  const [loading, setLoading] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [overallStats, setOverallStats] = useState<OverAllStats | null>(null);
+
+  // fetch subjects & stats only if user is logged in
   useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const fetchSubjects = async () => {
+      try {
+        const res = await api.get("/api/v1/subjects/");
+        setSubjects(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    const fetchOverallStats = async () => {
+      try {
+        const res = await api.get("/api/v1/attendance/overall-stats/");
+        setOverallStats(res.data);
+      } catch (err) {
+        console.error("Failed to fetch overall stats", err);
+      }
+    };
+
     fetchSubjects();
-  }, []);
+    fetchOverallStats();
+  }, [isAuthenticated]);
 
-  const fetchSubjects = async () => {
-    try {
-      const res = await api.get("/api/v1/subjects/");
-      setSubjects(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-//works only for input fields as mentioned in type
-//data sent to the backend
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-        ...prev,
-        [e.target.name]: e.target.value,
-    }));
-  };
-//api call to add subject
-  const handleAddSubject = async () => {
-    if (!formData.subject_name || !formData.subject_code) return;
+  // ---- UI ----
+  if (!isAuthenticated) {
+    // Landing view for non-logged-in users
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-900 p-4">
+        <h1 className="text-4xl font-bold text-white mb-6 text-center">
+          Welcome to Your Attendance Tracker
+        </h1>
+        <p className="text-neutral-400 mb-8 text-center max-w-md">
+          Track your subjects, attendance, and overall stats all in one place. Please login or register to get started.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <button
+            onClick={() => navigate("/login")}
+            className="px-6 py-3 bg-indigo-500 text-white rounded-lg text-lg font-semibold hover:bg-indigo-600 transition"
+          >
+            Login
+          </button>
+          <button
+            onClick={() => navigate("/register")}
+            className="px-6 py-3 border border-indigo-500 text-indigo-500 rounded-lg text-lg font-semibold hover:bg-indigo-500 hover:text-white transition"
+          >
+            Register
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-    try {
-      setLoading(true);
-      await api.post("/api/v1/subjects/", formData);
-      setFormData((prev) => ({
-        ...prev,
-        subject_name: "",
-        subject_code: "",
-      }));
-      setShowForm(false);
-      fetchSubjects();
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Authenticated user view
   return (
     <div className="p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Dashboard</h1>
-
-        <button
-        //if clicked, show form to add subject
-        //if clicked again, hide the form
-          onClick={() => setShowForm(!showForm)}
-          className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-md transition"
-        >
-          + Add Subject
-        </button>
       </div>
 
-      {/* Add Subject Form */}
-      {showForm && (
-        <div className="bg-neutral-800 border border-neutral-700 rounded-lg p-4 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              type="text"
-              name="subject_name"
-              placeholder="Subject Name"
-              value={formData.subject_name}
-              onChange={handleChange}
-              className="bg-neutral-900 border border-neutral-700 text-white p-2 rounded-md focus:outline-none focus:border-indigo-500"
-            />
-
-            <input
-              type="text"
-              name="subject_code"
-              placeholder="Subject Code"
-              value={formData.subject_code}
-              onChange={handleChange}
-              className="bg-neutral-900 border border-neutral-700 text-white p-2 rounded-md focus:outline-none focus:border-indigo-500"
-            />
+      {/* Overall Stats */}
+      {overallStats && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-5">
+            <p className="text-green-400 text-sm">Present</p>
+            <h2 className="text-4xl font-bold text-green-500 mt-2">
+              {overallStats.present}
+            </h2>
           </div>
-
-          <div className="flex gap-3 mt-4">
-            <button
-              onClick={handleAddSubject}
-              disabled={loading}
-              className="bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-md text-white disabled:opacity-50"
-            >
-              {loading ? "Adding..." : "Add Subject"}
-            </button>
-
-            <button
-              onClick={() => setShowForm(false)}
-              className="text-neutral-400 hover:text-white"
-            >
-              Cancel
-            </button>
+          <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-5">
+            <p className="text-red-400 text-sm">Absent</p>
+            <h2 className="text-4xl font-bold text-red-500 mt-2">
+              {overallStats.absent}
+            </h2>
+          </div>
+          <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-5">
+            <p className="text-indigo-400 text-sm">Attendance</p>
+            <h2 className="text-4xl font-bold text-white mt-2">
+              {overallStats.percentage.toFixed(1)}%
+            </h2>
+            <p className="text-neutral-500 text-sm mt-1">
+              Total classes {overallStats.total}
+            </p>
           </div>
         </div>
       )}
