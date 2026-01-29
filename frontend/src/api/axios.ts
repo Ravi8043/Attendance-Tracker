@@ -1,11 +1,12 @@
-// src/api/axios.ts
 import axios from "axios";
-import type { InternalAxiosRequestConfig, AxiosRequestHeaders } from "axios";
+import type { InternalAxiosRequestConfig } from "axios";
 
-const BASE_URL = "http://127.0.0.1:8000/";
+const BASE_URL = "http://127.0.0.1:8000";
 
-// Public endpoints that do NOT require JWT
-const PUBLIC_ENDPOINTS = ["/api/v1/accounts/register/", "/api/v1/accounts/login/"];
+const PUBLIC_ENDPOINTS = [
+  "/api/v1/accounts/register/",
+  "/api/v1/accounts/token/",
+];
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -14,29 +15,34 @@ const api = axios.create({
   },
 });
 
-// Attach JWT only for non-public endpoints
 api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+  (config: InternalAxiosRequestConfig) => {
     const url = config.url ?? "";
 
-    // Skip token for public endpoints
-    if (PUBLIC_ENDPOINTS.some(ep => url.includes(ep))) {
-      return config;
-    }
+    const isPublic = PUBLIC_ENDPOINTS.some(ep => url.includes(ep));
+    if (isPublic) return config;
 
-    // Ensure headers exist and cast to AxiosRequestHeaders
-    config.headers = config.headers ?? {} as AxiosRequestHeaders;
-
-    // Attach token safely
-    const tokens = localStorage.getItem("tokens");
-    if (tokens) {
-      const access = JSON.parse(tokens).access;
-      config.headers["Authorization"] = `Bearer ${access}`;
+    const stored = localStorage.getItem("tokens");
+    if (stored) {
+      const { access } = JSON.parse(stored);
+      if (access) {
+        config.headers.Authorization = `Bearer ${access}`;
+      }
     }
 
     return config;
   },
-  (error) => Promise.reject(error)
+  error => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  res => res,
+  err => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem("tokens");
+    }
+    return Promise.reject(err);
+  }
 );
 
 export default api;

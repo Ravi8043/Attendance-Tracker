@@ -7,9 +7,9 @@ type Tokens = {
 
 type AuthContextType = {
   tokens: Tokens | null;
+  isAuthenticated: boolean;
   login: (tokens: Tokens) => void;
   logout: () => void;
-  isAuthenticated: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -34,9 +34,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthContext.Provider
       value={{
         tokens,
+        isAuthenticated: !!tokens,
         login,
         logout,
-        isAuthenticated: !!tokens,
       }}
     >
       {children}
