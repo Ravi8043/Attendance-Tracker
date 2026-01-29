@@ -17,12 +17,8 @@ const SubjectCard = ({ subject }: { subject: Subject }) => {
         {subject.subject_name}
       </h2>
       <p className="text-sm text-neutral-400">
-        Code: {subject.subject_code}
+        Code: {subject.subject_code === "" ? "N/A" : subject.subject_code}
       </p>
-
-      <div className="mt-4 text-sm text-neutral-300">
-        Attendance: <span className="text-indigo-400">--%</span>
-      </div>
     </div>
   );
 };

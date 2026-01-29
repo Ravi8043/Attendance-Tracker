@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Subject from "./pages/Subject";
 import Landing from "./pages/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AddSubject from "./pages/AddSubject";
 
 function App() {
   return (
@@ -31,6 +32,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Subject />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/subjects/add"
+            element={
+              <ProtectedRoute>
+                <AddSubject />
               </ProtectedRoute>
             }
           />

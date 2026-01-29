@@ -1,12 +1,15 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { login as loginAPI } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
 import type { LoginPayLoad } from "../types/auth";
 
 const Login = () => {
   const { login } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  
 
   const [form, setForm] = useState<LoginPayLoad>({
     username: "",
@@ -36,6 +39,10 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  if(isAuthenticated){
+    return <Navigate to="/dashboard" replace/>;
+  }
 
   return (
     <div className="flex items-center justify-center h-screen bg-neutral-900">

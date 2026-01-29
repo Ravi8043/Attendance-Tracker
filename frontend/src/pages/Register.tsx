@@ -1,9 +1,11 @@
 import { register } from "../api/auth";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import type { RegisterPayLoad } from "../types/auth";
+import { useAuth } from "../context/AuthContext";
 
 const Register = () => {
+  const { isAuthenticated} = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState<RegisterPayLoad>({
@@ -15,7 +17,9 @@ const Register = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-
+  if(isAuthenticated){
+    return <Navigate to="/dashboard" replace/>;
+  }
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
     setErrors(prev => ({ ...prev, [e.target.name]: "" }));
