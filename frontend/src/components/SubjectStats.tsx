@@ -23,12 +23,11 @@ const SubjectStats = ({ attendance }: Props) => {
     return total ? Math.round((presentCount / total) * 100) : 0;
   }, [presentCount, total]);
 
-  const barColor =
-    percentage >= 75
-      ? "bg-green-500"
-      : percentage >= 50
-      ? "bg-yellow-400"
-      : "bg-red-500";
+  const { barColor, statusText } = useMemo(() => {
+    if (percentage >= 75) return { barColor: "#16a34a", statusText: "Safe" }; // green
+    if (percentage >= 50) return { barColor: "#facc15", statusText: "Warning" }; // yellow
+    return { barColor: "#ef4444", statusText: "Critical" }; // red
+  }, [percentage]);
 
   return (
     <div className="space-y-6">
@@ -42,18 +41,21 @@ const SubjectStats = ({ attendance }: Props) => {
         </div>
       </div>
 
-      {/* Progress Bar */}
-      <div className="w-full">
-        <div className="h-5 w-full rounded-full bg-neutral-800">
-          <div
-            className={`h-full rounded-full transition-all ${barColor}`}
-            style={{ width: `${percentage}%` }}
-          />
-        </div>
+      {/* Rectangular Progress Bar */}
+      <div className="w-full bg-gray-200 rounded-xl h-6 overflow-hidden mt-4">
+        <div
+          className="h-full rounded-xl transition-all duration-500"
+          style={{
+            width: `${percentage}%`,
+            backgroundColor: barColor,
+          }}
+        />
       </div>
+
+      {/* Optional status text */}
+      <p className="text-center font-medium mt-2">{statusText}</p>
     </div>
   );
 };
 
 export default SubjectStats;
-

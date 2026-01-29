@@ -8,6 +8,7 @@ import Subject from "./pages/Subject";
 import Landing from "./pages/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AddSubject from "./pages/AddSubject";
+import PublicRoute from "./components/PublicRoute";
 
 function App() {
   return (
@@ -15,8 +16,22 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route 
+          path="/login" 
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+          />
+          <Route 
+          path="/register" 
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          }
+          />
 
           <Route
             path="/dashboard"
@@ -43,6 +58,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+          {/*Fallback route*/}
+          <Route path="*" element={<div className="p-8">404 Not Found</div>} />
         </Routes>
       </BrowserRouter>
     </div>
