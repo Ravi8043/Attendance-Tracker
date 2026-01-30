@@ -1,4 +1,9 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useMemo } from "react";
+import { createAPI } from "../api/axios";
+
+// ------------------------------
+// TYPES
+// ------------------------------
 
 type Tokens = {
   access: string;
@@ -10,26 +15,51 @@ type AuthContextType = {
   isAuthenticated: boolean;
   login: (tokens: Tokens) => void;
   logout: () => void;
+  api: ReturnType<typeof createAPI>; // Axios instance with token logic
 };
 
+// ------------------------------
+// CONSTANTS
+// ------------------------------
+
 const TOKENS_STORAGE_KEY = "auth_tokens";
+
+// ------------------------------
+// CONTEXT
+// ------------------------------
+
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [tokens, setTokens] = useState<Tokens | null>(() => {
-    const stored = localStorage.getItem("tokens");
-    return stored ? JSON.parse(stored) : null;
-  });
+// Load initial tokens from localStorage
+const getInitialTokens = (): Tokens | null => {
+  const stored = localStorage.getItem(TOKENS_STORAGE_KEY);
+  return stored ? JSON.parse(stored) : null;
+};
 
-  const login = (tokens: Tokens) => {
-    localStorage.setItem(TOKENS_STORAGE_KEY, JSON.stringify(tokens));
-    setTokens(null);
+// ------------------------------
+// PROVIDER
+// ------------------------------
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [tokens, setTokens] = useState<Tokens | null>(getInitialTokens);
+
+  const login = (newTokens: Tokens) => {
+    localStorage.setItem(TOKENS_STORAGE_KEY, JSON.stringify(newTokens));
+    setTokens(newTokens);
   };
 
   const logout = () => {
     localStorage.removeItem(TOKENS_STORAGE_KEY);
     setTokens(null);
+    window.location.href = "/"; // redirect to login
   };
+
+  // Create Axios instance with current token
+  const api = useMemo(
+    () =>
+      createAPI(() => tokens?.access || null), // always get latest token from state
+    [tokens]
+  );
 
   return (
     <AuthContext.Provider
@@ -38,12 +68,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         isAuthenticated: !!tokens,
         login,
         logout,
+        api,
       }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
+
+// ------------------------------
+// HOOK
+// ------------------------------
 
 export const useAuth = () => {
   const ctx = useContext(AuthContext);

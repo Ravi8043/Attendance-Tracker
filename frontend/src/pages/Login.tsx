@@ -5,21 +5,13 @@ import { useAuth } from "../context/AuthContext";
 import type { LoginPayLoad } from "../types/auth";
 
 const Login = () => {
-  const { login } = useAuth();
-  const { isAuthenticated } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  
-
-  const [form, setForm] = useState<LoginPayLoad>({
-    username: "",
-    password: "",
-  });
-
+  const [form, setForm] = useState<LoginPayLoad>({ username: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -30,19 +22,17 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const tokens = await loginAPI(form); // call backend
-      login(tokens); // save tokens in context/localStorage
-      navigate("/dashboard"); // redirect to dashboard
+      const tokens = await loginAPI(form);
+      login(tokens);
+      navigate("/dashboard");
     } catch (err) {
-      setError(`Login failed. Try again.${err}`);
+      setError(`Login failed. Check username/password. ${err}`);
     } finally {
       setLoading(false);
     }
   };
 
-  if(isAuthenticated){
-    return <Navigate to="/dashboard" replace/>;
-  }
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
   return (
     <div className="flex items-center justify-center h-screen bg-neutral-900">
@@ -50,40 +40,30 @@ const Login = () => {
         className="bg-neutral-800 p-8 rounded-xl w-80 space-y-6 shadow-md"
         onSubmit={handleLogin}
       >
-        <h1 className="text-2xl font-bold text-white text-center">
-          Login
-        </h1>
+        <h1 className="text-2xl font-bold text-white text-center">Login</h1>
 
-        {/* Username */}
-        <div className="flex flex-col">
-          <label className="text-sm text-neutral-400 mb-1">Username</label>
-          <input
-            type="text"
-            name="username"
-            value={form.username}
-            onChange={handleChange}
-            className="p-2 rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required
-          />
-        </div>
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={form.username}
+          onChange={handleChange}
+          className="w-full p-2 rounded-md bg-neutral-700 text-white"
+          required
+        />
 
-        {/* Password */}
-        <div className="flex flex-col">
-          <label className="text-sm text-neutral-400 mb-1">Password</label>
-          <input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            className="p-2 rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required
-          />
-        </div>
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={handleChange}
+          className="w-full p-2 rounded-md bg-neutral-700 text-white"
+          required
+        />
 
-        {/* Error message */}
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
-        {/* Submit button */}
         <button
           type="submit"
           disabled={loading}
@@ -91,17 +71,6 @@ const Login = () => {
         >
           {loading ? "Logging in..." : "Login"}
         </button>
-
-        {/* Optional register link */}
-        <p className="text-sm text-neutral-400 text-center">
-          Don't have an account?{" "}
-          <span
-            className="text-indigo-400 cursor-pointer hover:underline"
-            onClick={() => navigate("/register")}
-          >
-            Register
-          </span>
-        </p>
       </form>
     </div>
   );

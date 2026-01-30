@@ -1,11 +1,11 @@
-import { register } from "../api/auth";
-import { Navigate, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import type { RegisterPayLoad } from "../types/auth";
+import { useNavigate, Navigate } from "react-router-dom";
+import { register } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
+import type { RegisterPayLoad } from "../types/auth";
 
 const Register = () => {
-  const { isAuthenticated} = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState<RegisterPayLoad>({
@@ -14,12 +14,11 @@ const Register = () => {
     password: "",
     password2: "",
   });
-
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  if(isAuthenticated){
-    return <Navigate to="/dashboard" replace/>;
-  }
+
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
     setErrors(prev => ({ ...prev, [e.target.name]: "" }));
@@ -31,10 +30,10 @@ const Register = () => {
     setErrors({});
 
     try {
-      await register(form);       // register user
-      navigate("/login");         // navigate to login
+      await register(form);
+      navigate("/login");
     } catch (err) {
-      // Type-safe error handling
+      // handle backend errors
       if (typeof err === "object" && err !== null) {
         const backendErrors = err as Record<string, string[]>;
         const formatted: Record<string, string> = {};
@@ -42,9 +41,7 @@ const Register = () => {
           formatted[key] = Array.isArray(value) ? value.join(" ") : String(value);
         });
         setErrors(formatted);
-      } else {
-        console.error(err);
-      }
+      } else console.error(err);
     } finally {
       setLoading(false);
     }
@@ -105,10 +102,6 @@ const Register = () => {
         >
           {loading ? "Registering..." : "Register"}
         </button>
-
-        {errors.non_field_errors && (
-          <p className="text-red-500 text-sm text-center">{errors.non_field_errors}</p>
-        )}
       </form>
     </div>
   );
