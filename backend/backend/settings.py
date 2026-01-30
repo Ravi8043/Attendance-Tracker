@@ -59,6 +59,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",  # after sessions
     "django.middleware.csrf.CsrfViewMiddleware",
+    "backend.middleware.DisableCSRFForAPI",  # Custom middleware to disable CSRF for /api/
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
