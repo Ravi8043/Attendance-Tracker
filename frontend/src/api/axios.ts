@@ -1,7 +1,6 @@
 import axios from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
 
-const BASE_URL = "http://127.0.0.1:8000";
 
 const PUBLIC_ENDPOINTS = [
   "/api/v1/accounts/register/",
@@ -9,7 +8,8 @@ const PUBLIC_ENDPOINTS = [
 ];
 
 const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
