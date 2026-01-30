@@ -11,17 +11,25 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 # Database
 DATABASES = {
     "default": dj_database_url.config(
-        default=os.environ.get("DATABASE_URL")
+        default=os.environ.get("DATABASE_URL"),
+        conn_max_age=600,
+        conn_health_checks=True,
+        ssl_require=True
     )
 }
 
 # Security & Debug
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-local-dev-key-only")
 DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
-ALLOWED_HOSTS = [
-    "attendance-tracker-2-87hz.onrender.com",
-    ".vercel.app",
-]
+if os.environ.get('RENDER'):
+    ALLOWED_HOSTS = [
+        "attendance-tracker-2-87hz.onrender.com",
+        ".onrender.com",
+        "attendancetracker-bay.vercel.app",
+    ]
+else:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
 
 # ------------------ INSTALLED APPS ------------------
 INSTALLED_APPS = [
@@ -131,3 +139,25 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Add at the bottom of settings.py
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
