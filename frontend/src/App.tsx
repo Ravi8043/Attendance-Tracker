@@ -10,7 +10,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AddSubject from "./pages/AddSubject";
 import PublicRoute from "./components/PublicRoute";
 
+
 function App() {
+  console.log("API base URL:", import.meta.env.VITE_API_BASE_URL);
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100">
       <BrowserRouter>
