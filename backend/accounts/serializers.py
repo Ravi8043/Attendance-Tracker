@@ -21,11 +21,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        validated_data.pop('password2')
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            id_card_number=validated_data.get('id_card_number'),
-            password=validated_data['password']
+        validated_data.pop("password2")
+        try:
+            user = User.objects.create_user(
+                username=validated_data["username"],
+                id_card_number=validated_data.get("id_card_number"),
+                password=validated_data["password"],
             )
-        return user
+            return user
+        except Exception as e:
+            # Catch any IntegrityError (like duplicate id_card_number)
+            raise serializers.ValidationError({"detail": str(e)})
+    
 
