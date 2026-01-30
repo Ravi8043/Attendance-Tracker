@@ -32,7 +32,7 @@ const Login = () => {
     try {
       const tokens = await loginAPI(form); // call backend
       login(tokens); // save tokens in context/localStorage
-      navigate("/"); // redirect to dashboard
+      navigate("/dashboard"); // redirect to dashboard
     } catch (err) {
       setError(`Login failed. Try again.${err}`);
     } finally {
@@ -108,6 +108,3 @@ const Login = () => {
 };
 
 export default Login;
-
-
-// Surya, Surya@8043

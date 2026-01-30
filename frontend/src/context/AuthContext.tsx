@@ -12,6 +12,7 @@ type AuthContextType = {
   logout: () => void;
 };
 
+const TOKENS_STORAGE_KEY = "auth_tokens";
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -21,12 +22,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const login = (tokens: Tokens) => {
-    localStorage.setItem("tokens", JSON.stringify(tokens));
-    setTokens(tokens);
+    localStorage.setItem(TOKENS_STORAGE_KEY, JSON.stringify(tokens));
+    setTokens(null);
   };
 
   const logout = () => {
-    localStorage.removeItem("tokens");
+    localStorage.removeItem(TOKENS_STORAGE_KEY);
     setTokens(null);
   };
 
