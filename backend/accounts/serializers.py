@@ -22,15 +22,10 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop('password2')
-        user = User.objects.create(
+        user = User.objects.create_user(
             username=validated_data['username'],
-            id_card_number=validated_data['id_card_number']
-        )
-        user.set_password(validated_data['password']) # set_password hashes the password
-    # def create(self, validated_data):
-    #     validated_data.pop('password2')
-    #     return User.objects.create_user(**validated_data)
-    # i can also use above line instead of set_password im doing it manually to make sure password is hashed for sure.
-
-        user.save()
+            id_card_number=validated_data.get('id_card_number'),
+            password=validated_data['password']
+            )
         return user
+
