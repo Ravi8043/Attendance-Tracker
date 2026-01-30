@@ -20,7 +20,7 @@ DATABASES = {
 
 # Security & Debug
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-local-dev-key-only")
-DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+DEBUG = True
 if os.environ.get('RENDER'):
     ALLOWED_HOSTS = [
         "attendance-tracker-2-87hz.onrender.com",
